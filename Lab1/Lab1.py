@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Feb 20 12:45:24 2016
-
-@author: Javier Garcia Sanchez
+Javier Garcia Sanchez
 """
 import re
 import sys
