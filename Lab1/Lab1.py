@@ -7,24 +7,28 @@ import string
 import sys
 import unicodedata
 
-from numpy import log2
+from conda.compat import log2
 
 
 def count_letter(txt, c):
-    return sum(l == c for l in txt)
+    ret = sum(l == c for l in txt)
+    if ret > 0:
+        return float(ret)
 
 def count_total(txt):
     return sum(c != ' ' for c in txt)
 
 def info(p):
-    return log2(1.0 / p)          #no usar probabilitats reals dona divisio per 0
+    return log2(1.0 / p)
 
 def entropy(txt):
     total_letters = count_total(txt)
     accum = 0.0
     for l in string.ascii_lowercase:
-        p = count_letter(txt, l) / total_letters
-        accum += p * info(p)
+        count = count_letter(txt, l)
+        if count > 0:
+            p = count / total_letters
+            accum += p * info(p)
     return accum
 
 
@@ -55,7 +59,7 @@ def main(case="", input="", txtname=""):
     elif case == "entropy" and input != "":
         with open(input, 'r') as file:
             txt = file.read()
-        print "H(x): " + entropy(txt)
+        print "H(x): " + str(entropy(txt))
     else:
         print("Usage:")
         print("Lab1.py clean path/to/txt name_of_text")
