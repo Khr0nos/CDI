@@ -38,9 +38,11 @@ def remove_accents(txt):
 
 def clean_txt(txt, prefix):
     txt = remove_accents(txt)
+    txt = re.sub('[\r]', '', txt)
     txt = re.sub('[\n]', ' ', txt)
     with open(prefix + "_clean.txt", 'w') as out:
         out.write(txt)
+        #print set(txt)       #lletres resultants en el text netejat
 
 
 #########################################################
