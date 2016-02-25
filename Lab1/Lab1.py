@@ -7,7 +7,7 @@ import string
 import sys
 import unicodedata
 
-from conda.compat import log2
+from numpy.lib.scimath import log2
 
 
 def count_letter(txt, c):
