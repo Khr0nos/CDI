@@ -31,16 +31,20 @@ def entropy(txt):
             accum += p * info(p)
     return accum
 
+def joint_entropy(txt):
+    pass
 
 #########################################################
 
 def remove_accents(txt):
-    txt = unicode(txt, 'utf-8')
     return ''.join(
         x for x in unicodedata.normalize('NFKD', txt) if x in string.ascii_letters or x in string.whitespace).lower()
 
 
 def clean_txt(txt, prefix):
+    txt = unicode(txt, 'utf-8')
+    txt = re.sub('[Ç]', 'c', txt)
+    txt = re.sub('[ç]', 'c', txt)
     txt = remove_accents(txt)
     txt = re.sub('[\r]', '', txt)
     txt = re.sub('[\n]', ' ', txt)
