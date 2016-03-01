@@ -10,6 +10,12 @@ import unicodedata
 from numpy.lib.scimath import log2
 
 
+def total_consecutive(txt):                      #total de parells consecutius
+    pass
+
+def count_consecutive(txt, par):                 #aparicions de parell "par" en el text
+    pass
+
 def count_letter(txt, c):
     ret = sum(l == c for l in txt)
     if ret > 0:
@@ -29,6 +35,7 @@ def entropy(txt):
         if count > 0:
             p = count / total_letters
             accum += p * info(p)
+            #print l + " " + str(p)
     return accum
 
 def joint_entropy(txt):
