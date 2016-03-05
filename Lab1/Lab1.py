@@ -9,6 +9,7 @@ import unicodedata
 
 from numpy.lib.scimath import log2
 
+#funcions auxiliars
 
 def total_consecutive(txt):       # total de parells consecutius
     total = 0
@@ -35,6 +36,7 @@ def count_letter(txt, c):
 def count_total(txt):
     return sum(c != ' ' for c in txt)
 
+##################entropy################################
 
 def info(p):
     return log2(1.0 / p)
@@ -51,6 +53,7 @@ def entropy(txt):
             # print l + " " + str(p)
     return accum
 
+###################joint entropy#########################
 
 def parells():
     p = []
@@ -72,6 +75,7 @@ def joint_entropy(txt):
             #print par + " " + str(p)
     return accum
 
+#####################conditional entropy#################
 
 def after_letter(txt, ltr, i):
     par = ltr + i
@@ -98,7 +102,7 @@ def conditional_entropy(txt,ltr):
     return accum
 
 
-#########################################################
+####################text clean###########################
 
 def remove_accents(txt):
     return ''.join(
@@ -117,7 +121,7 @@ def clean_txt(txt, prefix):
         # print set(txt)       #lletres resultants en el text netejat
 
 
-#########################################################
+#########################main############################
 
 def main(case="", input="", aux=""):
     if input != "":
