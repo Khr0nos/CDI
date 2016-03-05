@@ -28,6 +28,8 @@ def count_letter(txt, c):
     ret = sum(l == c for l in txt)
     if ret > 0:
         return float(ret)
+    else:
+        return 0
 
 
 def count_total(txt):
@@ -67,7 +69,32 @@ def joint_entropy(txt):
         if count > 0:
             p = count / total_pairs
             accum += p * info(p)
-            print par + " " + str(p)
+            #print par + " " + str(p)
+    return accum
+
+
+def after_letter(txt, ltr, i):
+    par = ltr + i
+    ret = count_consecutive(txt, par) / total_consecutive(txt)
+    if ret > 0:
+        return ret
+    else:
+        return 0
+
+
+def conditional_entropy(txt,ltr):
+    count = count_letter(txt, ltr)
+    if count > 0:
+        p_ltr = count / count_total(txt)
+    else:
+        print("Specify an existing letter in text")
+        return "Not found"
+    accum = 0.0
+    for i in string.ascii_lowercase:
+        p_Y_x = after_letter(txt, ltr, i)
+        if p_Y_x > 0:
+            p_con = p_Y_x / p_ltr
+            accum += p_con * info(p_con)
     return accum
 
 
@@ -92,24 +119,27 @@ def clean_txt(txt, prefix):
 
 #########################################################
 
-def main(case="", input="", txtname=""):
-    if case == "clean" and input != "" and txtname != "":
+def main(case="", input="", aux=""):
+    if input != "":
         with open(input, 'r') as file:
             txt = file.read()
-        clean_txt(txt, txtname)
-    elif case == "entropy" and input != "":
-        with open(input, 'r') as file:
-            txt = file.read()
-        print "H(X): " + str(entropy(txt))
-    elif case == "joint_entropy" and input != "":
-        with open(input, 'r') as file:
-            txt = file.read()
-        print "H(X,Y): " + str(joint_entropy(txt))
+            if case == "clean" and aux != "":
+                clean_txt(txt, aux)
+            elif case == "entropy":
+                print "H(X): " + str(entropy(txt))
+            elif case == "joint_entropy":
+                print "H(X,Y): " + str(joint_entropy(txt))
+            elif case == "conditional_entropy" and aux != "":
+                print "H(Y|x): " + str(conditional_entropy(txt, aux))
+            else:
+                print("Usage:")
+                print("Lab1.py clean path/to/originaltxt name_of_text")
+                print("Lab1.py entropy path/to/cleantxt")
+                print("Lab1.py joint_entropy path/to/cleantxt")
+                print("Lab1.py conditional_entropy path/to/cleantxt specified_letter")
     else:
         print("Usage:")
-        print("Lab1.py clean path/to/originaltxt name_of_text")
-        print("Lab1.py entropy path/to/cleantxt")
-        print("Lab1.py joint_entropy path/to/cleantxt")
+        print("Lab1.py function path/to/text/defined/by/function")
 
 
 if __name__ == '__main__':  # no tocar
