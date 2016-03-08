@@ -9,6 +9,7 @@ import unicodedata
 
 from numpy.lib.scimath import log2
 
+
 #funcions auxiliars
 
 def total_consecutive(txt):       # total de parells consecutius
@@ -102,6 +103,7 @@ def conditional_entropy(txt,ltr):
     return accum
 
 
+#todo falta entropia condicional H(Y|X)
 ####################text clean###########################
 
 def remove_accents(txt):
