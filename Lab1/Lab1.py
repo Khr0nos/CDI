@@ -87,7 +87,7 @@ def after_letter(txt, ltr, i):
         return 0
 
 
-def conditional_entropy(txt,ltr):
+def conditional_entropy1(txt,ltr):
     count = count_letter(txt, ltr)
     if count > 0:
         p_ltr = count / count_total(txt)
@@ -100,6 +100,22 @@ def conditional_entropy(txt,ltr):
         if p_Y_x > 0:
             p_con = p_Y_x / p_ltr
             accum += p_con * info(p_con)
+    return accum
+
+
+def conditional_entropy(txt):
+    total_pairs = total_consecutive(txt)
+    letters = count_total(txt)
+    accum = 0.0
+    #pairs = parells()
+    for i in string.ascii_lowercase:
+        for j in string.ascii_lowercase:
+            count = count_consecutive(txt, i + j)
+            if count > 0:
+               p_x_y = count / total_pairs
+               p_x = count_letter(txt, i) / letters
+               p_con = p_x_y / p_x
+               accum += p_x_y * info(p_con)
     return accum
 
 
@@ -123,6 +139,10 @@ def clean_txt(txt, prefix):
         # print set(txt)       #lletres resultants en el text netejat
 
 
+##########################text generation################
+
+#todo funcions generacio nous textos
+
 #########################main############################
 
 def main(case="", input="", aux=""):
@@ -135,14 +155,17 @@ def main(case="", input="", aux=""):
                 print "H(X): " + str(entropy(txt))
             elif case == "joint_entropy":
                 print "H(X,Y): " + str(joint_entropy(txt))
-            elif case == "conditional_entropy" and aux != "":
-                print "H(Y|x): " + str(conditional_entropy(txt, aux))
+            elif case == "conditional_entropy1" and aux != "":
+                print "H(Y|x): " + str(conditional_entropy1(txt, aux))
+            elif case == "conditional_entropy":
+                print "H(Y|X): " + str(conditional_entropy(txt))
             else:
                 print("Usage:")
                 print("Lab1.py clean path/to/originaltxt name_of_text")
                 print("Lab1.py entropy path/to/cleantxt")
                 print("Lab1.py joint_entropy path/to/cleantxt")
-                print("Lab1.py conditional_entropy path/to/cleantxt specified_letter")
+                print("Lab1.py conditional_entropy1 path/to/cleantxt specified_letter")
+                print("Lab1.py conditional_entropy path/to/cleantxt")
     else:
         print("Usage:")
         print("Lab1.py function path/to/text/defined/by/function")
