@@ -27,11 +27,13 @@ def count_consecutive(txt, par):  # aparicions de parell "par" en el text
 
 
 def count_letter(txt, c):
-    ret = sum(l == c for l in txt)
-    if ret > 0:
-        return float(ret)
-    else:
-        return 0
+    # ret = sum(l == c for l in txt)
+    # if ret > 0:
+    #     return float(ret)
+    # else:
+    #     return 0
+    #ret = txt.count(c)
+    return float(txt.count(c))
 
 
 def count_total(txt):
@@ -51,7 +53,7 @@ def entropy(txt):
         if count > 0:
             p = count / total_letters
             accum += p * info(p)
-            # print l + " " + str(p)
+            #print l + " " + str(p)
     return accum
 
 ###################joint entropy#########################
@@ -108,9 +110,10 @@ def conditional_entropy(txt):
     letters = count_total(txt)
     accum = 0.0
     #pairs = parells()
-    for i in string.ascii_lowercase:
-        for j in string.ascii_lowercase:
+    for i in string.ascii_lowercase:                 #lletra X
+        for j in string.ascii_lowercase:             #lletra Y
             count = count_consecutive(txt, i + j)
+            #print i + j + str(count)
             if count > 0:
                p_x_y = count / total_pairs
                p_x = count_letter(txt, i) / letters
