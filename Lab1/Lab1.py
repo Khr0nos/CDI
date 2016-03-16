@@ -26,16 +26,6 @@ def count_consecutive(txt, par):  # aparicions de parell "par" en el text
     return float(ret)
 
 
-def count_letter(txt, c):
-    # ret = sum(l == c for l in txt)
-    # if ret > 0:
-    #     return float(ret)
-    # else:
-    #     return 0
-    #ret = txt.count(c)
-    return float(txt.count(c))
-
-
 def count_total(txt):
     return sum(c != ' ' for c in txt)
 
@@ -49,7 +39,7 @@ def entropy(txt):
     total_letters = count_total(txt)
     accum = 0.0
     for l in string.ascii_lowercase:
-        count = count_letter(txt, l)
+        count = float(txt.count(l))
         if count > 0:
             p = count / total_letters
             accum += p * info(p)
@@ -90,7 +80,7 @@ def after_letter(txt, ltr, i):
 
 
 def conditional_entropy1(txt,ltr):
-    count = count_letter(txt, ltr)
+    count = float(txt.count(ltr))
     if count > 0:
         p_ltr = count / count_total(txt)
     else:
@@ -116,13 +106,12 @@ def conditional_entropy(txt):
             #print i + j + str(count)
             if count > 0:
                p_x_y = count / total_pairs
-               p_x = count_letter(txt, i) / letters
+               p_x = float(txt.count(i)) / letters
                p_con = p_x_y / p_x
                accum += p_x_y * info(p_con)
     return accum
 
 
-#todo falta entropia condicional H(Y|X)
 ####################text clean###########################
 
 def remove_accents(txt):
