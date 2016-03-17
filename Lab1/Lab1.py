@@ -6,6 +6,7 @@ import re
 import string
 import sys
 import unicodedata
+#import random as rng
 
 from numpy.lib.scimath import log2
 
@@ -27,7 +28,8 @@ def count_consecutive(txt, par):  # aparicions de parell "par" en el text
 
 
 def count_total(txt):
-    return sum(c != ' ' for c in txt)
+    return len(txt) - txt.count(' ')
+    #return sum(c != ' ' for c in txt)
 
 ##################entropy################################
 
@@ -58,6 +60,7 @@ def parells():
 
 def joint_entropy(txt):
     total_pairs = total_consecutive(txt)
+    print total_pairs
     accum = 0.0
     pairs = parells()
     for par in pairs:
@@ -79,13 +82,21 @@ def after_letter(txt, ltr, i):
         return 0
 
 
-def conditional_entropy1(txt,ltr):
-    count = float(txt.count(ltr))
-    if count > 0:
-        p_ltr = count / count_total(txt)
+def conditional_entropy1(txt, ltr):
+    if ltr == "espai":
+        count = float(txt.count(" "))
+        if count > 0:
+            p_ltr = count / len(txt)
+        else:
+            print("Specify an existing letter in text")
+            return "Not found"
     else:
-        print("Specify an existing letter in text")
-        return "Not found"
+        count = float(txt.count(ltr))
+        if count > 0:
+            p_ltr = count / count_total(txt)
+        else:
+            print("Specify an existing letter in text")
+            return "Not found"
     accum = 0.0
     for i in string.ascii_lowercase:
         p_Y_x = after_letter(txt, ltr, i)
@@ -99,19 +110,30 @@ def conditional_entropy(txt):
     total_pairs = total_consecutive(txt)
     letters = count_total(txt)
     accum = 0.0
-    #pairs = parells()
     for i in string.ascii_lowercase:                 #lletra X
         for j in string.ascii_lowercase:             #lletra Y
             count = count_consecutive(txt, i + j)
             #print i + j + str(count)
             if count > 0:
-               p_x_y = count / total_pairs
-               p_x = float(txt.count(i)) / letters
-               p_con = p_x_y / p_x
-               accum += p_x_y * info(p_con)
+                p_x_y = count / total_pairs
+                p_x = float(txt.count(i)) / letters
+                p_con = p_x_y / p_x
+                accum += p_x_y * info(p_con)
     return accum
 
 
+'''
+def conditional_entropy(txt):
+    letters = count_total(txt)
+    accum = 0.0
+    for i in string.ascii_lowercase:                 #lletra X
+        for j in string.ascii_lowercase:             #lletra Y
+            count = count_consecutive(txt, i + j)
+            if count > 0:
+                p_x = float(txt.count(i)) / letters
+                accum += p_x * conditional_entropy1(txt, i)
+    return accum
+'''
 ####################text clean###########################
 
 def remove_accents(txt):
@@ -126,6 +148,7 @@ def clean_txt(txt, prefix):
     txt = remove_accents(txt)
     txt = re.sub('[\r]', '', txt)
     txt = re.sub('[\n]', ' ', txt)
+    txt = re.sub(' +', ' ', txt)
     with open(prefix + "_clean.txt", 'w') as out:
         out.write(txt)
         # print set(txt)       #lletres resultants en el text netejat
@@ -149,6 +172,8 @@ def main(case="", input="", aux=""):
                 print "H(X,Y): " + str(joint_entropy(txt))
             elif case == "conditional_entropy1" and aux != "":
                 print "H(Y|x): " + str(conditional_entropy1(txt, aux))
+            elif case == "conditional_entropy1" and aux == "espai":
+                print "H(Y|x): " + str(conditional_entropy1(txt, " "))
             elif case == "conditional_entropy":
                 print "H(Y|X): " + str(conditional_entropy(txt))
             else:
