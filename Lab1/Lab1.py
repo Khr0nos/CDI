@@ -2,16 +2,22 @@
 """
 Javier Garcia Sanchez
 """
+import random as rng
 import re
 import string
 import sys
 import unicodedata
-#import random as rng
 
 from numpy.lib.scimath import log2
 
 
-#funcions auxiliars
+# region auxiliars
+def pars(txt):
+    pairs = []
+    for i in range(0, len(txt) - 1):
+        pairs.append(txt[i] + txt[i + 1])
+    return pairs
+
 
 def total_consecutive(txt):       # total de parells consecutius
     total = 0
@@ -30,9 +36,10 @@ def count_consecutive(txt, par):  # aparicions de parell "par" en el text
 def count_total(txt):
     return len(txt) - txt.count(' ')
     #return sum(c != ' ' for c in txt)
+# endregion
 
-##################entropy################################
 
+# region entropy
 def info(p):
     return log2(1.0 / p)
 
@@ -45,11 +52,12 @@ def entropy(txt):
         if count > 0:
             p = count / total_letters
             accum += p * info(p)
-            #print l + " " + str(p)
+            print l + " " + str(p)
     return accum
+# endregion
 
-###################joint entropy#########################
 
+# region joint entropy
 def parells():
     p = []
     for i in string.ascii_lowercase:
@@ -60,7 +68,6 @@ def parells():
 
 def joint_entropy(txt):
     total_pairs = total_consecutive(txt)
-    print total_pairs
     accum = 0.0
     pairs = parells()
     for par in pairs:
@@ -68,11 +75,12 @@ def joint_entropy(txt):
         if count > 0:
             p = count / total_pairs
             accum += p * info(p)
-            #print par + " " + str(p)
+            print par + " " + str(p)
     return accum
+# endregion
 
-#####################conditional entropy#################
 
+# region conditional entropy
 def after_letter(txt, ltr, i):
     par = ltr + i
     ret = count_consecutive(txt, par) / total_consecutive(txt)
@@ -134,8 +142,10 @@ def conditional_entropy(txt):
                 accum += p_x * conditional_entropy1(txt, i)
     return accum
 '''
-####################text clean###########################
+# endregion
 
+
+# region text cleaning
 def remove_accents(txt):
     return ''.join(
         x for x in unicodedata.normalize('NFKD', txt) if x in string.ascii_letters or x in string.whitespace).lower()
@@ -152,13 +162,31 @@ def clean_txt(txt, prefix):
     with open(prefix + "_clean.txt", 'w') as out:
         out.write(txt)
         # print set(txt)       #lletres resultants en el text netejat
+# endregion
 
 
-##########################text generation################
+# region text generation
+def new_text(nom, txt):
+    nou = ""
+    for i in range(0, len(txt)):
+        nou += rng.choice(txt)
+    nou = re.sub(' +', ' ', nou)
+    with open(nom + ".txt", 'w') as text:
+        text.write(nou)
+    print "New text entropy: " + str(entropy(nou))
 
-#todo funcions generacio nous textos
+def new_text_joint(nom, txt):   #todo seleccionar parells del text directament?
+    nou = ""
+    pairs = pars(txt)
+    length = len(txt) / 2
+    for i in range(0, length):
+        nou += rng.choice(pairs)
+    nou = re.sub(' +', ' ', nou)
+    with open(nom + ".txt", 'w') as text:
+        text.write(nou)
+    print "New text joint entropy: " + str(joint_entropy(nou))
+# endregion
 
-#########################main############################
 
 def main(case="", input="", aux=""):
     if input != "":
@@ -176,13 +204,19 @@ def main(case="", input="", aux=""):
                 print "H(Y|x): " + str(conditional_entropy1(txt, " "))
             elif case == "conditional_entropy":
                 print "H(Y|X): " + str(conditional_entropy(txt))
+            elif case == "new" and aux != "":
+                new_text(aux, txt)
+            elif case == "new_joint" and aux != "":
+                new_text_joint(aux, txt)
             else:
                 print("Usage:")
-                print("Lab1.py clean path/to/originaltxt name_of_text")
+                print("Lab1.py clean path/to/originaltxt nom_del_text")
                 print("Lab1.py entropy path/to/cleantxt")
                 print("Lab1.py joint_entropy path/to/cleantxt")
                 print("Lab1.py conditional_entropy1 path/to/cleantxt specified_letter")
                 print("Lab1.py conditional_entropy path/to/cleantxt")
+                print("Lab1.py new clean_txt nom_del_nou_text")
+                print("Lab1.py new_joint clean_txt nom_del_nou_text")
     else:
         print("Usage:")
         print("Lab1.py function path/to/text/defined/by/function")
