@@ -15,7 +15,7 @@ from numpy.lib.scimath import log2
 def pars(txt):
     pairs = []
     for i in range(0, len(txt) - 1):
-        pairs.append(txt[i] + txt[i + 1])
+        if txt[i] != ' ' and txt[i + 1] != ' ': pairs.append(txt[i] + txt[i + 1])
     return pairs
 
 
@@ -52,7 +52,7 @@ def entropy(txt):
         if count > 0:
             p = count / total_letters
             accum += p * info(p)
-            print l + " " + str(p)
+            print l + " " + str(p) + " " + str(count)
     return accum
 # endregion
 
@@ -75,7 +75,7 @@ def joint_entropy(txt):
         if count > 0:
             p = count / total_pairs
             accum += p * info(p)
-            print par + " " + str(p)
+            print par + " " + str(count) + " " + str(p)
     return accum
 # endregion
 
@@ -175,16 +175,16 @@ def new_text(nom, txt):
         text.write(nou)
     print "New text entropy: " + str(entropy(nou))
 
-def new_text_joint(nom, txt):   #todo seleccionar parells del text directament?
-    nou = ""
-    pairs = pars(txt)
-    length = len(txt) / 2
-    for i in range(0, length):
-        nou += rng.choice(pairs)
-    nou = re.sub(' +', ' ', nou)
+def new_text_joint(nom, txt):                            #text random de parells amb espais forçats per
+    nou = ""                                             #a que sigui possible obtenir entropia correcta
+    pairs = pars(txt)                                    #sino les probabilitats de parells no son correctes
+    for i in range(0, len(txt) / 2):
+        p = " " + rng.choice(pairs)
+        nou += p
     with open(nom + ".txt", 'w') as text:
         text.write(nou)
-    print "New text joint entropy: " + str(joint_entropy(nou))
+    #print "New text joint entropy: " + str(joint_entropy(nou))
+    #print "New text conditional entropy: " + str(conditional_entropy(nou))
 # endregion
 
 
