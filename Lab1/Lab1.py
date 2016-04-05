@@ -53,7 +53,7 @@ def entropy(txt):                            # entropia de la variable X d'un te
         if count > 0:
             p = count / total_letters
             accum += p * info(p)
-            #print l + " " + str(p) + " " + str(count)
+            print l + " " + str(p) + " "# + str(count)
     return accum
 # endregion
 
