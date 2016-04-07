@@ -47,13 +47,15 @@ def info(p):
 
 def entropy(txt):                            # entropia de la variable X d'un text: lletra aleatoria del text
     total_letters = count_total(txt)
+    #print total_letters
     accum = 0.0
     for l in string.ascii_lowercase:
         count = float(txt.count(l))
         if count > 0:
             p = count / total_letters
             accum += p * info(p)
-            print l + " " + str(p) + " "# + str(count)
+            #print l + " " + str(p)
+            #print l + " " + str(count)
     return accum
 # endregion
 
