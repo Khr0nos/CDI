@@ -3,21 +3,57 @@
 Javier Garcia Sanchez
 47179375-G
 """
+import math
+import operator
 import string
 import sys
+from random import choice
 
 from numpy.lib.scimath import log2
+
+fano_code = []
 
 def huffman_code(src):
     pass
 
 
-def shannon_fano_code(src):
-    pass
+
+def shannon_fano_code(inici, final):
+    n = final - inici + 1
+    if n > 1:
+        mig = int(n / 2 + inici)
+        for i in range(inici, final + 1):
+            val = fano_code[i]
+            if i < mig:
+                fano_code[i] = val[0], val[1], val[2] + '0'
+            else:
+                fano_code[i] = val[0], val[1], val[2] + '1'
+        shannon_fano_code(inici, mig - 1)
+        shannon_fano_code(mig, final)
 
 
 def shannon_code(src):
-    pass
+    code = []
+    mean = 0.0
+    keys = src.keys()
+    for k in keys:
+        l = math.ceil(log2(1.0 / src[k]))
+        mean += (l * src[k])
+        prefix = False
+        c = "".join(choice(keys) for i in range(int(l)))
+        found = False
+        while not found:
+            for val in code:
+                if val.startswith(c):
+                    prefix = True
+                    break
+            if prefix:
+                prefix = False
+                c = "".join(choice(keys) for i in range(int(l)))
+            else:
+                found = True
+        code.append(c)
+    return code, mean
 
 
 def source_extension(src, k):
@@ -43,7 +79,7 @@ def source_extension(src, k):
 
 def source_fromstring_binary(txt):
     length = len(txt)
-    src = {bit: float(txt.count(bit))/ length for bit in ["0", "1"]}
+    src = {bit: float(txt.count(bit)) / length for bit in ['0', '1']}
     return src
 
 def source_fromstring(txt):
@@ -94,6 +130,7 @@ def get_source(infile):
 
 
 def main(case="", input="", aux=""):
+    global fano_code
     if case == "source":
         if aux == "":
             src = source_fromstring(input)
@@ -102,8 +139,8 @@ def main(case="", input="", aux=""):
             src = source_fromstring_weights(input)
             print "Source extracted\n" + str(src)
         elif aux != "" and int(aux) > 0:            #k extension >= 2 i <= 4
-            '''with open(input, 'r') as infile:
-                src = get_source(infile)'''
+            #with open(input, 'r') as infile:
+            #    src = get_source(infile)
             src = source_fromstring(input)
             k = int(aux)
             src_k = source_extension(src, k)
@@ -117,13 +154,21 @@ def main(case="", input="", aux=""):
                 print "H(S): " + str(entropy_source(src))
     elif case == "code":
         src = source_fromstring_binary(input)
-        print src
         if aux == "shannon":
-            print "Shannon code: " + str(shannon_code(src))
+            code, l = shannon_code(source_extension(src, 2))
+            print "Shannon code: " + str(code) + " mean length " + str(l)
         elif aux == "fano":
-            print "Shannon-Fano code: " + str(shannon_fano_code(src))
+            src = source_extension(src, 2)
+            fano_code = sorted(src.items(), key=operator.itemgetter(1), reverse=True)
+            for i in range(len(fano_code)):
+                fano_code[i] = fano_code[i][0], fano_code[i][1], ''
+            shannon_fano_code(0, len(fano_code) - 1)
+            print fano_code
+            #print "Shannon-Fano code: " + str(code) + " mean length " + str(l)
         elif aux == "huffman":
-            print "Huffman code: " + str(huffman_code(src))
+            pass
+            #code, l = huffman_code(src)
+            #print "Huffman code: " + str(code) + " mean length " + str(l)
 
 
 if __name__ == '__main__':  # no tocar
