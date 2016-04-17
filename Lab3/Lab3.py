@@ -3,8 +3,8 @@
 Javier Garcia Sanchez
 47179375-G
 """
-import sys
 import string
+import sys
 
 
 def source_fromstring(txt):
@@ -12,7 +12,9 @@ def source_fromstring(txt):
     return src
 
 
-
+def source_fromstring_binary(txt):
+    src = {bit: float(txt.count(bit)) for bit in ['0', '1']}
+    return src
 
 
 
@@ -20,18 +22,22 @@ def arithmetic_encode(str, src, k):
     return []
 
 
-def arithmetic_decode(bin, src, k, len):
+def arithmetic_decode(bin_code, src, k, len):
     return ""
 
 
-def main(case="", source="", str="", k="", l=""):
-    src = source_fromstring(source)
-    if case == "encode":
-        bin = arithmetic_encode(str, src, int(k))
-        print bin
+def main(case="", font="", txt="", k="", l=""):
+    if font[0] in string.ascii_lowercase:
+        src = source_fromstring(font)
     else:
-        str = arithmetic_decode(bin, src, k, l)
-        print str
+        src = source_fromstring_binary(font)
+    #print src
+    if case == "encode":
+        bin_code = arithmetic_encode(txt, src, int(k))
+        print bin_code
+    else:
+        txt = arithmetic_decode(bin_code, src, k, l)
+        print txt
 
 
 if __name__ == '__main__':  # no tocar
