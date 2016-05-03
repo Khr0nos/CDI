@@ -4,6 +4,11 @@ Javier Garcia Sanchez
 47179375-G
 """
 import argparse
+import string
+from math import ceil
+
+from numpy.lib.scimath import log2
+
 
 def item(s):
     try:
@@ -15,8 +20,26 @@ def item(s):
         raise argparse.ArgumentTypeError("letter dictionary expected")
 
 
+def alphabet_size(txt):
+    c = 0
+    if txt[0] in string.ascii_lowercase:
+        for ltr in string.ascii_lowercase:
+            if ltr in txt:
+                c += 1
+    elif txt[0] == '0' or txt[0] == '1':
+        c = 2
+    else:
+        print "alfabet desconegut"
+        exit()
+    return c
+
+
 def LZ77_encode(txt, s, t):
-    pass
+    bs = ceil(log2(s + 1)) + ceil(log2(t)) + ceil(log2(alphabet_size(txt)))
+    tok = []
+    for i in range(len(txt)):
+        pass
+    return bs, tok
 
 
 def LZ77_decode(tok):
@@ -47,8 +70,14 @@ def LZW_decode(dic, tok):
     pass
 
 
+def get_dict(dic):
+    dicc = []
+    with open(dic) as infile:
+        pass
+    return dicc
+
 def main():
-    parser = argparse.ArgumentParser(description="Dictionary coding script", )
+    parser = argparse.ArgumentParser(description="Dictionary coding script")
     parser.add_argument('case', choices=["encode_lz77", "decode_lz77", "encode_lzss", "decode_lzss", "encode_lz78",
                                          "decode_lz78", "encode_lzw", "decode_lzw"], help="option case to be executed",
                         metavar="case")
@@ -56,13 +85,13 @@ def main():
     parser.add_argument('-s', type=int, help="offset")
     parser.add_argument('-t', type=int, help="length")
     parser.add_argument('-m', type=int, help="smallest match length lambda")
-    parser.add_argument('-dic', nargs='+', type=item)
+    parser.add_argument('-dic', type=file)
     parser.add_argument('-tok', help="especificar tipus de token segons cada cas")
     args = parser.parse_args()
     case = args.case
-    print args.dic
     if case == "encode_lz77":
-        LZ77_encode(args.txt, args.s, args.t)
+        bs, tok = LZ77_encode(args.txt, args.s, args.t)
+        #print bits/symbol i llista de tokens
     elif case == "decode_lz77":
         LZ77_decode(args.tok)
     elif case == "encode_lzss":
@@ -76,6 +105,7 @@ def main():
     elif case == "encode_lzw":
         LZW_encode(args.txt)
     elif case == "decode_lzw":
+        dicc = get_dict(args.dic)
         LZW_decode(args.dic, args.tok)
 
 
