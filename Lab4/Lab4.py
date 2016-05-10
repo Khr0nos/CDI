@@ -29,7 +29,7 @@ def alphabet_size(txt):
     elif txt[0] == '0' or txt[0] == '1':
         c = 2
     else:
-        print "alfabet desconegut"
+        print("alfabet desconegut")
         exit()
     return c
 
