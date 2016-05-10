@@ -29,7 +29,7 @@ def alphabet_size(txt):
     elif txt[0] == '0' or txt[0] == '1':
         c = 2
     else:
-        print "alfabet desconegut"
+        print("alfabet desconegut")
         exit()
     return c
 
@@ -85,7 +85,7 @@ def main():
     parser.add_argument('-s', type=int, help="offset")
     parser.add_argument('-t', type=int, help="length")
     parser.add_argument('-m', type=int, help="smallest match length lambda")
-    parser.add_argument('-dic', type=file)
+    parser.add_argument('-dic')
     parser.add_argument('-tok', help="especificar tipus de token segons cada cas")
     args = parser.parse_args()
     case = args.case
