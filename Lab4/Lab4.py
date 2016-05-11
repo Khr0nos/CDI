@@ -135,7 +135,10 @@ def main():
         else:
             print("Falta parametre 's' i/o 't'")
     elif case == "decode_lz77":
-        LZ77_decode(args.tok)
+        if args.tok is not None:
+            print(LZ77_decode(args.tok))
+        else:
+            print("Falta parametre 'tok' (llista de tokens)")
     elif case == "encode_lzss":
         LZSS_encode(args.txt, args.s, args.t, args.m)
     elif case == "decode_lzss":
