@@ -34,11 +34,39 @@ def alphabet_size(txt):
     return c
 
 
+def longest_match(srch, ahead, s, t):
+    n_theta = 0
+    n_lmbda = 0
+    l_max = 0
+    max_str = ""
+    #found = False
+    for i in range(1, t):
+        candidat = ahead[:i]
+        if srch[:i] == candidat:
+            if len(candidat) > l_max:
+                l_max = len(candidat)
+                max_str = candidat
+    return n_theta, n_lmbda
+
+
 def LZ77_encode(txt, s, t):
     bs = ceil(log2(s + 1)) + ceil(log2(t)) + ceil(log2(alphabet_size(txt)))
     tok = []
-    for i in range(len(txt)):
-        pass
+    theta = 0
+    lmbda = 0
+    tok.append((theta, lmbda, txt[0]))
+    srch = txt[:lmbda + 1]
+    ahead = txt[lmbda + 1:]
+    while ahead != "":
+        theta, lmbda = longest_match(srch, ahead, s, t)
+        tok.append((theta, lmbda, ahead[lmbda]))
+        srch += ahead[:lmbda + 1]
+        if len(srch) > s:
+            left = len(srch) - s
+            srch = srch[left:]
+        ahead = ahead[lmbda + 1:]
+        print(srch)
+        print(ahead)
     return bs, tok
 
 
@@ -72,8 +100,7 @@ def LZW_decode(dic, tok):
 
 def get_dict(dic):
     dicc = []
-    with open(dic) as infile:
-        pass
+    #todo get dictionary maybe
     return dicc
 
 def main():
@@ -82,16 +109,20 @@ def main():
                                          "decode_lz78", "encode_lzw", "decode_lzw"], help="option case to be executed",
                         metavar="case")
     parser.add_argument('txt', help="string of characters to be encoded")
-    parser.add_argument('-s', type=int, help="offset")
-    parser.add_argument('-t', type=int, help="length")
+    parser.add_argument('-s', type=int, help="maximum offset")
+    parser.add_argument('-t', type=int, help="maximum length")
     parser.add_argument('-m', type=int, help="smallest match length lambda")
     parser.add_argument('-dic')
     parser.add_argument('-tok', help="especificar tipus de token segons cada cas")
     args = parser.parse_args()
     case = args.case
     if case == "encode_lz77":
-        bs, tok = LZ77_encode(args.txt, args.s, args.t)
-        #print bits/symbol i llista de tokens
+        if args.s is not None and args.t is not None:
+            bs, tok = LZ77_encode(args.txt, args.s, args.t)
+            print(bs)
+            print(tok)
+        else:
+            print("Falten parametres 's' i/o 't'")
     elif case == "decode_lz77":
         LZ77_decode(args.tok)
     elif case == "encode_lzss":
