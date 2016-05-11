@@ -44,7 +44,7 @@ def longest_match(srch, ahead, t):
             if j + i > len(srch):
                 searched += ahead[:len(srch) - j + i]
             if searched == candidat:
-                if len(candidat) > l_max:
+                if len(candidat) >= l_max:
                     l_max = len(candidat)
                     pos = j
                     #break
@@ -75,8 +75,8 @@ def LZ77_encode(txt, s, t):
             left = len(srch) - s
             srch = srch[left:]
         ahead = ahead[lmbda + 1:]
-        print(srch)
-        print(ahead)
+        #print("search" + " " + srch)
+        #print("lookahead" + " " + ahead)
     return bs, tok
 
 
@@ -129,7 +129,7 @@ def main():
     if case == "encode_lz77":
         if args.s is not None and args.t is not None:
             bs, tok = LZ77_encode(args.txt, args.s, args.t)
-            print(bs)
+            print("bits per symbol" + " " + str(bs))
             print("Llista amb " + str(len(tok)) + " tokens:")
             print(tok)
         else:
