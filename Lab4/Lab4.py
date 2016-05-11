@@ -5,6 +5,7 @@ Javier Garcia Sanchez
 """
 import argparse
 import string
+from ast import literal_eval
 from math import ceil
 
 from numpy.lib.scimath import log2
@@ -44,7 +45,7 @@ def longest_match(srch, ahead, t):
             if j + i > len(srch):
                 searched += ahead[:len(srch) - j + i]
             if searched == candidat:
-                if len(candidat) >= l_max:
+                if len(candidat) > l_max:
                     l_max = len(candidat)
                     pos = j
                     #break
@@ -63,11 +64,10 @@ def LZ77_encode(txt, s, t):
     ahead = txt[lmbda + 1:]
     while ahead != "":
         theta, lmbda = longest_match(srch, ahead, t)
-        #print(lmbda)
         if lmbda == 0:
             tok.append((0, lmbda, ahead[lmbda]))
         if lmbda < len(ahead):
-            tok.append((theta, lmbda, ahead[lmbda]))
+            tok.append((theta, lmbda+1, ahead[lmbda]))
         elif len(ahead) == 1:
             tok.append((theta, lmbda, ahead[0]))
         srch += ahead[:lmbda + 1]
@@ -81,8 +81,21 @@ def LZ77_encode(txt, s, t):
 
 
 def LZ77_decode(tok):
-    pass
-
+    x = ""
+    for i in range(len(tok)):
+        if int(tok[i][0]) == 0 and int(tok[i][1]) == 0:
+            x += tok[i][2]
+        else:
+            theta = int(tok[i][0])
+            lmbda = int(tok[i][1])
+            j = len(x) - theta
+            pre = x[:j]
+            post = x[j:]
+            x = pre + lmbda * tok[i][2] + post
+            #print(pre)
+            #print(post)
+        print("x = " + x)
+    return x
 
 def LZSS_encode(txt, s, t, m):
     pass
@@ -113,12 +126,13 @@ def get_dict(dic):
     #todo get dictionary maybe
     return dicc
 
+
 def main():
     parser = argparse.ArgumentParser(description="Dictionary coding script")
     parser.add_argument('case', choices=["encode_lz77", "decode_lz77", "encode_lzss", "decode_lzss", "encode_lz78",
                                          "decode_lz78", "encode_lzw", "decode_lzw"], help="option case to be executed",
                         metavar="case")
-    parser.add_argument('txt', help="string of characters to be encoded")
+    parser.add_argument('-txt', help="string of characters to be encoded")
     parser.add_argument('-s', type=int, help="maximum offset")
     parser.add_argument('-t', type=int, help="maximum length")
     parser.add_argument('-m', type=int, help="smallest match length lambda")
@@ -127,18 +141,16 @@ def main():
     args = parser.parse_args()
     case = args.case
     if case == "encode_lz77":
-        if args.s is not None and args.t is not None:
+        if args.txt is not None and args.s is not None and args.t is not None:
             bs, tok = LZ77_encode(args.txt, args.s, args.t)
             print("bits per symbol" + " " + str(bs))
             print("Llista amb " + str(len(tok)) + " tokens:")
             print(tok)
         else:
-            print("Falta parametre 's' i/o 't'")
+            print("Falten parametres 's', 't' i/o el text")
     elif case == "decode_lz77":
-        if args.tok is not None:
-            print(LZ77_decode(args.tok))
-        else:
-            print("Falta parametre 'tok' (llista de tokens)")
+        tok = literal_eval(input("Entra la llista de tokens "))
+        print(LZ77_decode(tok))
     elif case == "encode_lzss":
         LZSS_encode(args.txt, args.s, args.t, args.m)
     elif case == "decode_lzss":
