@@ -34,18 +34,22 @@ def alphabet_size(txt):
     return c
 
 
-def longest_match(srch, ahead, s, t):
-    n_theta = 0
-    n_lmbda = 0
+def longest_match(srch, ahead, t):
     l_max = 0
-    max_str = ""
-    #found = False
+    pos = 0
     for i in range(1, t):
         candidat = ahead[:i]
-        if srch[:i] == candidat:
-            if len(candidat) > l_max:
-                l_max = len(candidat)
-                max_str = candidat
+        for j in range(len(srch)):
+            searched = srch[j:j + i]
+            if j + i > len(srch):
+                searched += ahead[:len(srch) - j + i]
+            if searched == candidat:
+                if len(candidat) > l_max:
+                    l_max = len(candidat)
+                    pos = j
+                    #break
+    n_theta = len(srch) - pos
+    n_lmbda = l_max
     return n_theta, n_lmbda
 
 
@@ -58,8 +62,14 @@ def LZ77_encode(txt, s, t):
     srch = txt[:lmbda + 1]
     ahead = txt[lmbda + 1:]
     while ahead != "":
-        theta, lmbda = longest_match(srch, ahead, s, t)
-        tok.append((theta, lmbda, ahead[lmbda]))
+        theta, lmbda = longest_match(srch, ahead, t)
+        #print(lmbda)
+        if lmbda == 0:
+            tok.append((0, lmbda, ahead[lmbda]))
+        if lmbda < len(ahead):
+            tok.append((theta, lmbda, ahead[lmbda]))
+        elif len(ahead) == 1:
+            tok.append((theta, lmbda, ahead[0]))
         srch += ahead[:lmbda + 1]
         if len(srch) > s:
             left = len(srch) - s
@@ -120,9 +130,10 @@ def main():
         if args.s is not None and args.t is not None:
             bs, tok = LZ77_encode(args.txt, args.s, args.t)
             print(bs)
+            print("Llista amb " + str(len(tok)) + " tokens:")
             print(tok)
         else:
-            print("Falten parametres 's' i/o 't'")
+            print("Falta parametre 's' i/o 't'")
     elif case == "decode_lz77":
         LZ77_decode(args.tok)
     elif case == "encode_lzss":
