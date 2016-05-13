@@ -40,16 +40,14 @@ def longest_match(srch, ahead, t):
     pos = 0
     for i in range(1, t):
         candidat = ahead[:i]
-        for j in range(len(srch)):
-            searched = srch[j:j + i]
-            if j + i > len(srch):
-                searched += ahead[:len(srch) - j + i]
-            if searched == candidat:
-                if len(candidat) > l_max:
-                    l_max = len(candidat)
-                    pos = j
-                    #break
-    n_theta = len(srch) - pos
+        it = srch.find(candidat)
+        if it != -1 and len(candidat) > l_max:
+            l_max = len(candidat)
+            pos = it
+            #break
+    n_theta = 0
+    if pos > 0:
+        n_theta = len(srch) - pos
     n_lmbda = l_max
     return n_theta, n_lmbda
 
@@ -67,7 +65,7 @@ def LZ77_encode(txt, s, t):
         if lmbda == 0:
             tok.append((0, lmbda, ahead[lmbda]))
         if lmbda < len(ahead):
-            tok.append((theta, lmbda+1, ahead[lmbda]))
+            tok.append((theta, lmbda, ahead[lmbda]))
         elif len(ahead) == 1:
             tok.append((theta, lmbda, ahead[0]))
         srch += ahead[:lmbda + 1]
@@ -149,7 +147,7 @@ def main():
         else:
             print("Falten parametres 's', 't' i/o el text")
     elif case == "decode_lz77":
-        tok = literal_eval(input("Entra la llista de tokens "))
+        tok = literal_eval(input("Entra la llista de tokens tal com dóna la sortida del encoder\n"))
         print(LZ77_decode(tok))
     elif case == "encode_lzss":
         LZSS_encode(args.txt, args.s, args.t, args.m)
