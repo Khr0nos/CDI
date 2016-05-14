@@ -11,14 +11,14 @@ from math import ceil
 from numpy.lib.scimath import log2
 
 
-def item(s):
-    try:
-        par = s.split(",")
-        ltr = par[0]
-        count = int(par[1])
-        return ltr, count
-    except:
-        raise argparse.ArgumentTypeError("letter dictionary expected")
+# def item(s):
+#     try:
+#         par = s.split(",")
+#         ltr = par[0]
+#         count = int(par[1])
+#         return ltr, count
+#     except:
+#         raise argparse.ArgumentTypeError("letter dictionary expected")
 
 
 def alphabet_size(txt):
@@ -38,15 +38,15 @@ def alphabet_size(txt):
 def longest_match(srch, ahead, t):
     l_max = 0
     pos = 0
-    for i in range(1, t):
+    window = srch + ahead[:t]
+    for i in range(1, t + 1):
         candidat = ahead[:i]
-        it = srch.find(candidat)
-        if it != -1 and len(candidat) > l_max:
+        it = window.find(candidat)
+        if it != -1 and it < len(srch) and len(candidat) > l_max:
             l_max = len(candidat)
             pos = it
-            #break
     n_theta = 0
-    if pos > 0:
+    if pos >= 0:
         n_theta = len(srch) - pos
     n_lmbda = l_max
     return n_theta, n_lmbda
@@ -62,19 +62,17 @@ def LZ77_encode(txt, s, t):
     ahead = txt[lmbda + 1:]
     while ahead != "":
         theta, lmbda = longest_match(srch, ahead, t)
-        if lmbda == 0:
-            tok.append((0, lmbda, ahead[lmbda]))
+        if lmbda == 0 and theta == 0:
+            tok.append((0, 0, ahead[lmbda]))
         if lmbda < len(ahead):
             tok.append((theta, lmbda, ahead[lmbda]))
-        elif len(ahead) == 1:
-            tok.append((theta, lmbda, ahead[0]))
+        elif lmbda == len(ahead):
+            tok.append((theta, lmbda, ahead[lmbda - 1]))
         srch += ahead[:lmbda + 1]
         if len(srch) > s:
             left = len(srch) - s
             srch = srch[left:]
         ahead = ahead[lmbda + 1:]
-        #print("search" + " " + srch)
-        #print("lookahead" + " " + ahead)
     return bs, tok
 
 
@@ -86,13 +84,15 @@ def LZ77_decode(tok):
         else:
             theta = int(tok[i][0])
             lmbda = int(tok[i][1])
-            j = len(x) - theta
+            j = len(x) - theta      #TODO theta pot ser > len(x) compte!!
             pre = x[:j]
             post = x[j:]
-            x = pre + lmbda * tok[i][2] + post
-            #print(pre)
-            #print(post)
-        print("x = " + x)
+            if pre == "":
+                x = post + lmbda * tok[i][2]
+            # elif :
+            #     pass
+            else:
+                x = pre + lmbda * tok[i][2] + post
     return x
 
 def LZSS_encode(txt, s, t, m):
@@ -141,7 +141,7 @@ def main():
     if case == "encode_lz77":
         if args.txt is not None and args.s is not None and args.t is not None:
             bs, tok = LZ77_encode(args.txt, args.s, args.t)
-            print("bits per symbol" + " " + str(bs))
+            print(str(bs) + " " + "bits per symbol")
             print("Llista amb " + str(len(tok)) + " tokens:")
             print(tok)
         else:
