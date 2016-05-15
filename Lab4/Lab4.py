@@ -84,15 +84,19 @@ def LZ77_decode(tok):
         else:
             theta = int(tok[i][0])
             lmbda = int(tok[i][1])
-            j = len(x) - theta      #TODO theta pot ser > len(x) compte!!
-            pre = x[:j]
-            post = x[j:]
-            if pre == "":
-                x = post + lmbda * tok[i][2]
-            # elif :
-            #     pass
+            if lmbda <= len(x):
+                pos = len(x) - theta
+                word = x[pos:pos + lmbda]
+                x += word + tok[i][2]
             else:
-                x = pre + lmbda * tok[i][2] + post
+                pass
+                #todo match into lookahead
+            #pre = x[:pos]
+            #post = x[pos:]
+            # if pre == "":
+            #     x = post + lmbda * tok[i][2]
+            # else:
+            #     x = pre + lmbda * tok[i][2] + post
     return x
 
 def LZSS_encode(txt, s, t, m):
