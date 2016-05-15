@@ -4,10 +4,15 @@ Javier Garcia Sanchez
 47179375-G
 """
 
+import matplotlib.pyplot as plt
+import scipy.misc
+
 
 def main():
-    #misc.imread("C:\\Users\\Xavi\\Pictures\\Praga - Viena - Budapest\\CIMG0993.JPG")
-    pass
+    img = scipy.misc.imread("lena.jpg")
+    #print(img)
+    plt.imshow(img)
+    plt.show()
 
 
 
