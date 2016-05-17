@@ -139,16 +139,62 @@ def LZSS_decode(tok):
     return x
 
 
+def longest_prefix(buffer, dic):
+    word = ""
+    length = 0
+    i = 1
+    candidat = buffer[:i]
+    while len(candidat) <= len(buffer) and i < len(dic):
+        if candidat in dic and len(candidat) > length:
+            word = candidat
+            length = len(candidat)
+        i += 1
+        candidat = buffer[:i]
+    return word, length
+
+
 def LZ78_encode(txt):
-    bs = 0
-    tok = []
+    bs = ceil(log2(alphabet_size(txt))) + 2**4
+    dic_size = 2**4
+    dic = ["", txt[0]]
+    tok = [(0, txt[0])]
+    buffer = txt[1:]
+    while buffer != "":
+        word, length = longest_prefix(buffer, dic)
+        if word not in dic:
+            dic.append(word)
+            i = dic.index(word)
+        elif word == "" or length == 0:
+            dic.append(buffer[0])
+            i = 0
+        else:
+            i = dic.index(word)
 
+        if length < len(buffer):
+            last = buffer[length]
+        else:
+            last = buffer[len(buffer) - 1]
+        if len(dic) + 1 >= dic_size:
+            dic_size *= 2
+        tok.append((i, last))
+        buffer = buffer[length + 1:]
 
+    #print(dic)
+    bs += dic_size
     return bs, tok
 
 
 def LZ78_decode(tok):
-    pass
+    x = ""
+    dic = [""]
+    for i in range(len(tok)):
+        if tok[i][0] == 0:
+            x += tok[i][1]
+            dic.append(tok[i][1])
+        else:
+            x += dic[tok[i][0]] + tok[i][1]
+    #print(dic)
+    return x
 
 
 def LZW_encode(txt):
@@ -157,12 +203,6 @@ def LZW_encode(txt):
 
 def LZW_decode(dic, tok):
     pass
-
-
-def get_dict(dic):
-    dicc = []
-    # todo get dictionary maybe
-    return dicc
 
 
 def main():
@@ -174,7 +214,6 @@ def main():
     parser.add_argument('-s', type=int, help="maximum offset")
     parser.add_argument('-t', type=int, help="maximum length")
     parser.add_argument('-m', type=int, help="smallest match length lambda")
-    parser.add_argument('-dic')
     args = parser.parse_args()
     case = args.case
     if case == "encode_lz77":
@@ -224,11 +263,15 @@ def main():
 
     elif case == "decode_lzw":
         tok = literal_eval(input("Entra la llista de tokens tal com dóna la sortida del encoder\n"))
-        if args.dic is not None:
-            dicc = get_dict(args.dic)
-            print(LZW_decode(args.dic, tok))
-        else:
-            print("Falta el diccionari")
+        dic = literal_eval(input("Entra el diccionari tal com dóna la sortida del encoder\n"))
+        print(LZW_decode(dic, tok))
+
+'''Els decoders demanen com a input la llista de tokens tal com ve donada pel corresponent encoder,
+es a dir, si un encoder mostra per exemple en la sortida: [(0, 's'), (1, 'e')]
+hi ha prou amb copiar i enganxar el string per la entrada estàndar quan ho demana el decoder corresponent
+'''
+
+
 
 
 if __name__ == '__main__':  # no tocar
