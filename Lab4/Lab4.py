@@ -266,12 +266,11 @@ def main():
         dic = literal_eval(input("Entra el diccionari tal com dóna la sortida del encoder\n"))
         print(LZW_decode(dic, tok))
 
+
 '''Els decoders demanen com a input la llista de tokens tal com ve donada pel corresponent encoder,
 es a dir, si un encoder mostra per exemple en la sortida: [(0, 's'), (1, 'e')]
 hi ha prou amb copiar i enganxar el string per la entrada estàndar quan ho demana el decoder corresponent
 '''
-
-
 
 
 if __name__ == '__main__':  # no tocar
