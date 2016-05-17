@@ -11,16 +11,6 @@ from math import ceil
 from numpy.lib.scimath import log2
 
 
-# def item(s):
-#     try:
-#         par = s.split(",")
-#         ltr = par[0]
-#         count = int(par[1])
-#         return ltr, count
-#     except:
-#         raise argparse.ArgumentTypeError("letter dictionary expected")
-
-
 def alphabet_size(txt):
     c = 0
     if txt[0] in string.ascii_lowercase:
@@ -84,23 +74,24 @@ def LZ77_decode(tok):
         else:
             theta = int(tok[i][0])
             lmbda = int(tok[i][1])
-            if lmbda <= len(x):
+            if theta <= len(x):
                 pos = len(x) - theta
-                word = x[pos:pos + lmbda]
-                x += word + tok[i][2]
-            else:
-                pass
-                #todo match into lookahead
-            #pre = x[:pos]
-            #post = x[pos:]
-            # if pre == "":
-            #     x = post + lmbda * tok[i][2]
-            # else:
-            #     x = pre + lmbda * tok[i][2] + post
+                if lmbda <= len(x):
+                    word = x[pos:pos + lmbda]
+                    x += word + tok[i][2]
+                else:
+                    count = len(x)
+                    for j in range(lmbda):
+                        x += x[j % count]
+                    x += tok[i][2]
     return x
 
 def LZSS_encode(txt, s, t, m):
-    pass
+    bs = 0
+    tok = []
+
+
+    return bs, tok
 
 
 def LZSS_decode(tok):
@@ -153,18 +144,27 @@ def main():
         tok = literal_eval(input("Entra la llista de tokens tal com dóna la sortida del encoder\n"))
         print(LZ77_decode(tok))
     elif case == "encode_lzss":
-        LZSS_encode(args.txt, args.s, args.t, args.m)
+        if args.txt is not None and args.s is not None and args.t is not None and args.m is not None:
+            bs, tok = LZSS_encode(args.txt, args.s, args.t, args.m)
+            print(str(bs) + " " + "bits per symbol")
+            print("Llista amb " + str(len(tok)) + " tokens:")
+            print(tok)
+        else:
+            print("Falten parametres 's', 't', 'm' i/o el text")
     elif case == "decode_lzss":
-        LZSS_decode(args.tok)
+        tok = literal_eval(input("Entra la llista de tokens tal com dóna la sortida del encoder\n"))
+        print(LZSS_decode(tok))
     elif case == "encode_lz78":
         LZ78_encode(args.txt)
     elif case == "decode_lz78":
-        LZ78_decode(args.tok)
+        tok = literal_eval(input("Entra la llista de tokens tal com dóna la sortida del encoder\n"))
+        print(LZ78_decode(tok))
     elif case == "encode_lzw":
         LZW_encode(args.txt)
     elif case == "decode_lzw":
+        tok = literal_eval(input("Entra la llista de tokens tal com dóna la sortida del encoder\n"))
         dicc = get_dict(args.dic)
-        LZW_decode(args.dic, args.tok)
+        print(LZW_decode(args.dic, tok))
 
 
 if __name__ == '__main__':  # no tocar
