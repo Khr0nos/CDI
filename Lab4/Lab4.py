@@ -66,7 +66,7 @@ def LZ77_encode(txt, s, t):
     return bs, tok
 
 
-def LZ77_decode(tok):
+def LZ77_decode(tok):  # en alguns casos pot donar com a resultat un text decodificat amb l'última lletra repetida
     x = ""
     for i in range(len(tok)):
         if int(tok[i][0]) == 0 and int(tok[i][1]) == 0:
@@ -86,20 +86,65 @@ def LZ77_decode(tok):
                     x += tok[i][2]
     return x
 
+
 def LZSS_encode(txt, s, t, m):
+    bsa = ceil(log2(alphabet_size(txt)))
+    bsn = 1 + ceil(log2(s + 1)) + ceil(log2(t))
+    bs = "tokens (0, a) " + str(bsa) + " " + "bits per symbol\n" + "tokens (1, theta, lambda) " + str(
+        bsn) + " bits per symbol\n"
+    tok = []
+    lmbda = 0
+    tok.append((0, txt[0]))
+    srch = txt[:lmbda + 1]
+    ahead = txt[lmbda + 1:]
+    while ahead != "":
+        theta, lmbda = longest_match(srch, ahead, t)
+        if lmbda < m:
+            tok.append((0, ahead[0]))
+        elif len(ahead) > lmbda >= m:
+            tok.append((1, theta, lmbda))
+        elif lmbda == len(ahead):
+            tok.append((1, theta, lmbda))
+        if lmbda == 1:
+            srch += ahead[0]
+        else:
+            srch += ahead[:lmbda + 1]
+        if len(srch) > s:
+            left = len(srch) - s
+            srch = srch[left:]
+        if lmbda == 1:
+            ahead = ahead[lmbda:]
+        else:
+            ahead = ahead[lmbda + 1:]
+    return bs, tok
+
+
+def LZSS_decode(tok):
+    x = ""
+    for i in range(len(tok)):
+        if int(tok[i][0]) == 0:
+            x += tok[i][1]
+        else:
+            theta = int(tok[i][1])
+            lmbda = int(tok[i][2])
+            if theta <= len(x):
+                pos = len(x) - theta
+                if lmbda <= len(x):
+                    word = x[pos:pos + lmbda]
+                    x += word
+                else:
+                    count = len(x)
+                    for j in range(lmbda):
+                        x += x[j % count]
+    return x
+
+
+def LZ78_encode(txt):
     bs = 0
     tok = []
 
 
     return bs, tok
-
-
-def LZSS_decode(tok):
-    pass
-
-
-def LZ78_encode(txt):
-    pass
 
 
 def LZ78_decode(tok):
@@ -116,7 +161,7 @@ def LZW_decode(dic, tok):
 
 def get_dict(dic):
     dicc = []
-    #todo get dictionary maybe
+    # todo get dictionary maybe
     return dicc
 
 
@@ -140,31 +185,50 @@ def main():
             print(tok)
         else:
             print("Falten parametres 's', 't' i/o el text")
+
     elif case == "decode_lz77":
         tok = literal_eval(input("Entra la llista de tokens tal com dóna la sortida del encoder\n"))
         print(LZ77_decode(tok))
+
     elif case == "encode_lzss":
         if args.txt is not None and args.s is not None and args.t is not None and args.m is not None:
             bs, tok = LZSS_encode(args.txt, args.s, args.t, args.m)
-            print(str(bs) + " " + "bits per symbol")
+            print(bs)
             print("Llista amb " + str(len(tok)) + " tokens:")
             print(tok)
         else:
             print("Falten parametres 's', 't', 'm' i/o el text")
+
     elif case == "decode_lzss":
         tok = literal_eval(input("Entra la llista de tokens tal com dóna la sortida del encoder\n"))
         print(LZSS_decode(tok))
+
     elif case == "encode_lz78":
-        LZ78_encode(args.txt)
+        if args.txt is not None:
+            bs, tok = LZ78_encode(args.txt)
+            print(str(bs) + " " + "bits per symbol")
+            print("Llista amb " + str(len(tok)) + " tokens:")
+            print(tok)
+        else:
+            print("Falta el text")
+
     elif case == "decode_lz78":
         tok = literal_eval(input("Entra la llista de tokens tal com dóna la sortida del encoder\n"))
         print(LZ78_decode(tok))
+
     elif case == "encode_lzw":
-        LZW_encode(args.txt)
+        if args.txt is not None:
+            LZW_encode(args.txt)
+        else:
+            print("Falta el text")
+
     elif case == "decode_lzw":
         tok = literal_eval(input("Entra la llista de tokens tal com dóna la sortida del encoder\n"))
-        dicc = get_dict(args.dic)
-        print(LZW_decode(args.dic, tok))
+        if args.dic is not None:
+            dicc = get_dict(args.dic)
+            print(LZW_decode(args.dic, tok))
+        else:
+            print("Falta el diccionari")
 
 
 if __name__ == '__main__':  # no tocar
