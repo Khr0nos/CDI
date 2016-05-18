@@ -10,7 +10,6 @@ import scipy.misc
 
 def main():
     img = scipy.misc.imread("lena.jpg")
-    #print(img)
     plt.imshow(img)
     plt.show()
 
