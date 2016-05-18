@@ -273,6 +273,7 @@ def main():
 
     elif case == "decode_lz77":
         tok = literal_eval(input("Entra la llista de tokens tal com dóna la sortida del encoder\n"))
+        print("Output text:")
         print(LZ77_decode(tok))
 
     elif case == "encode_lzss":
@@ -286,6 +287,7 @@ def main():
 
     elif case == "decode_lzss":
         tok = literal_eval(input("Entra la llista de tokens tal com dóna la sortida del encoder\n"))
+        print("Output text:")
         print(LZSS_decode(tok))
 
     elif case == "encode_lz78":
@@ -299,6 +301,7 @@ def main():
 
     elif case == "decode_lz78":
         tok = literal_eval(input("Entra la llista de tokens tal com dóna la sortida del encoder\n"))
+        print("Output text:")
         print(LZ78_decode(tok))
 
     elif case == "encode_lzw":
@@ -315,6 +318,7 @@ def main():
     elif case == "decode_lzw":
         tok = literal_eval(input("Entra la llista de tokens tal com dóna la sortida del encoder\n"))
         dic = literal_eval(input("Entra el diccionari tal com dóna la sortida del encoder\n"))
+        print("Output text:")
         print(LZW_decode(dic, tok))
 
 
