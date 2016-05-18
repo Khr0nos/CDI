@@ -255,7 +255,7 @@ def main():
     parser = argparse.ArgumentParser(description="Dictionary coding script")
     parser.add_argument('case', choices=["encode_lz77", "decode_lz77", "encode_lzss", "decode_lzss", "encode_lz78",
                                          "decode_lz78", "encode_lzw", "decode_lzw"], help="option case to be executed",
-                        metavar="noms dels possibles casos: encode_lz77, decode_lz77, encode_lzss, decode_lzss, encode_lz78, decode_lz78, encode_lzw, decode_lzw")
+                        metavar="nom del cas: encode_lz77, decode_lz77, encode_lzss, decode_lzss, encode_lz78, decode_lz78, encode_lzw, decode_lzw")
     parser.add_argument('-txt', help="string of characters to be encoded")
     parser.add_argument('-s', type=int, help="maximum offset")
     parser.add_argument('-t', type=int, help="maximum length")
