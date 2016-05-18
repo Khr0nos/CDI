@@ -156,7 +156,7 @@ def longest_prefix(buffer, dic):
 
 def LZ78_encode(txt):
     bs = ceil(log2(alphabet_size(txt)))
-    dic_size = 2**4
+    dic_size = 2 ** 4
     dic = ["", txt[0]]
     tok = [(0, txt[0])]
     buffer = txt[1:]
@@ -182,7 +182,7 @@ def LZ78_encode(txt):
         tok.append((i, last))
         buffer = buffer[length + 1:]
 
-    #print(dic)
+    # print(dic)
     bs += dic_size
     return bs, tok
 
@@ -196,7 +196,7 @@ def LZ78_decode(tok):
             dic.append(tok[i][1])
         else:
             x += dic[tok[i][0]] + tok[i][1]
-    #print(dic)
+    # print(dic)
     return x
 
 
@@ -207,12 +207,13 @@ def init_dictionary(txt):
         dic = ['0', '1']
     return dic
 
+
 def longest_prefix_lzw(buffer, dic):
     word = ""
     length = 0
     i = 1
     candidat = buffer[:i]
-    while i < len(buffer):
+    while i <= len(buffer):
         if candidat in dic and len(candidat) > length:
             word = candidat
             length = len(candidat)
@@ -233,28 +234,28 @@ def LZW_encode(txt):
         if len(dic) + 1 >= dic_size:
             dic_size *= 2
         if length < len(buffer) and len(buffer) > 1:
-            dic.append(word + buffer[length])
-            i = dic.index(word + buffer[length])
-        else:
-            dic.append(buffer)
             i = dic.index(word)
+            dic.append(word + buffer[length])
+            # i = dic.index(word + buffer[length])
+        else:
+            i = dic.index(word)
+            dic.append(buffer)
 
         tok.append(i)
-        buffer = buffer[length + 1:]
+        buffer = buffer[length:]
 
     return dic_size, dic, tok
 
 
 def LZW_decode(dic, tok):
-    x = ""
-    return x
+    return "".join(dic[tok[i]] for i in range(len(tok)))
 
 
 def main():
     parser = argparse.ArgumentParser(description="Dictionary coding script")
     parser.add_argument('case', choices=["encode_lz77", "decode_lz77", "encode_lzss", "decode_lzss", "encode_lz78",
                                          "decode_lz78", "encode_lzw", "decode_lzw"], help="option case to be executed",
-                        metavar="case")
+                        metavar="noms dels possibles casos: encode_lz77, decode_lz77, encode_lzss, decode_lzss, encode_lz78, decode_lz78, encode_lzw, decode_lzw")
     parser.add_argument('-txt', help="string of characters to be encoded")
     parser.add_argument('-s', type=int, help="maximum offset")
     parser.add_argument('-t', type=int, help="maximum length")
@@ -316,13 +317,13 @@ def main():
         dic = literal_eval(input("Entra el diccionari tal com dóna la sortida del encoder\n"))
         print(LZW_decode(dic, tok))
 
+
 '''Els textos donats com a entrada d'un encoder han d'estar formats per caracters ascii (minuscules) o digits binaris'''
 
 '''Els decoders demanen com a input la llista de tokens tal com ve donada pel corresponent encoder,
 es a dir, si un encoder mostra per exemple en la sortida: [(0, 's'), (1, 'e')]
 hi ha prou amb copiar i enganxar el string per la entrada estàndar quan ho demana el decoder corresponent
 '''
-
 
 if __name__ == '__main__':  # no tocar
     main()
