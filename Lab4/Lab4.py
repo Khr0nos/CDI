@@ -66,7 +66,8 @@ def LZ77_encode(txt, s, t):
     return bs, tok
 
 
-def LZ77_decode(tok):  # en alguns casos pot donar com a resultat un text decodificat amb l'última lletra repetida
+def LZ77_decode(tok):
+    # en alguns casos pot donar com a resultat un text decodificat amb l'última lletra de més o de menys
     x = ""
     for i in range(len(tok)):
         if int(tok[i][0]) == 0 and int(tok[i][1]) == 0:
@@ -144,7 +145,7 @@ def longest_prefix(buffer, dic):
     length = 0
     i = 1
     candidat = buffer[:i]
-    while len(candidat) <= len(buffer) and i < len(dic):
+    while i < len(buffer):
         if candidat in dic and len(candidat) > length:
             word = candidat
             length = len(candidat)
@@ -154,7 +155,7 @@ def longest_prefix(buffer, dic):
 
 
 def LZ78_encode(txt):
-    bs = ceil(log2(alphabet_size(txt))) + 2**4
+    bs = ceil(log2(alphabet_size(txt)))
     dic_size = 2**4
     dic = ["", txt[0]]
     tok = [(0, txt[0])]
@@ -167,10 +168,12 @@ def LZ78_encode(txt):
         elif word == "" or length == 0:
             dic.append(buffer[0])
             i = 0
+        elif len(buffer) == 1:
+            i = 0
         else:
             i = dic.index(word)
 
-        if length < len(buffer):
+        if length < len(buffer) and len(buffer) > 1:
             last = buffer[length]
         else:
             last = buffer[len(buffer) - 1]
@@ -197,12 +200,54 @@ def LZ78_decode(tok):
     return x
 
 
+def init_dictionary(txt):
+    if txt[0] in string.ascii_lowercase:
+        dic = [ltr for ltr in string.ascii_lowercase if ltr in txt]
+    else:
+        dic = ['0', '1']
+    return dic
+
+def longest_prefix_lzw(buffer, dic):
+    word = ""
+    length = 0
+    i = 1
+    candidat = buffer[:i]
+    while i < len(buffer):
+        if candidat in dic and len(candidat) > length:
+            word = candidat
+            length = len(candidat)
+        i += 1
+        candidat = buffer[:i]
+    return word, length
+
+
 def LZW_encode(txt):
-    pass
+    dic_size = 2 ** (ceil(log2(alphabet_size(txt))) + 1)
+    dic = init_dictionary(txt)
+    tok = []
+    buffer = txt
+    while buffer != "":
+        word, length = longest_prefix_lzw(buffer, dic)
+        if word == "" or length == 0:
+            break
+        if len(dic) + 1 >= dic_size:
+            dic_size *= 2
+        if length < len(buffer) and len(buffer) > 1:
+            dic.append(word + buffer[length])
+            i = dic.index(word + buffer[length])
+        else:
+            dic.append(buffer)
+            i = dic.index(word)
+
+        tok.append(i)
+        buffer = buffer[length + 1:]
+
+    return dic_size, dic, tok
 
 
 def LZW_decode(dic, tok):
-    pass
+    x = ""
+    return x
 
 
 def main():
@@ -257,7 +302,12 @@ def main():
 
     elif case == "encode_lzw":
         if args.txt is not None:
-            LZW_encode(args.txt)
+            bs, dic, tok = LZW_encode(args.txt)
+            print(str(bs) + " " + "bits per symbol")
+            print("Llista amb " + str(len(tok)) + " tokens:")
+            print(tok)
+            print("Diccionari obtingut:")
+            print(dic)
         else:
             print("Falta el text")
 
@@ -266,6 +316,7 @@ def main():
         dic = literal_eval(input("Entra el diccionari tal com dóna la sortida del encoder\n"))
         print(LZW_decode(dic, tok))
 
+'''Els textos donats com a entrada d'un encoder han d'estar formats per caracters ascii (minuscules) o digits binaris'''
 
 '''Els decoders demanen com a input la llista de tokens tal com ve donada pel corresponent encoder,
 es a dir, si un encoder mostra per exemple en la sortida: [(0, 's'), (1, 'e')]
