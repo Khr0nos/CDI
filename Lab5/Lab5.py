@@ -6,26 +6,29 @@ Javier Garcia Sanchez
 import argparse
 
 import matplotlib.pyplot as plt
+import numpy as np
 import scipy.linalg
 from scipy import misc
 
 
 def fit_image(image, N):          #ajustar imatge per a tenir un nombre de files/columnes multiple de N
-    rows = columns = 0
+    rows = 0
+    columns = 0
     h = image.shape[0]
     w = image.shape[1]
-    last_row = image[h - 1]
-    last_column = image[:, w - 1]
-    print(last_row.shape)
-    # while h % N != 0 and w % N != 0:
-    #     image = np.concatenate((image, last_row), 0)
-    #     rows += 1
-    #     if h % N == 0:
-    #         break
-    #     image = np.concatenate((image, last_column), 1)
-    #     columns += 1
+    #last_column = image[:, w - 1:]
+    last_row = image[h - 1:]
+    while h % N != 0:
+        image = np.insert(image, h - 1, last_row, 0)
+        rows += 1
+        h = image.shape[0]
 
-    return rows, columns
+    while w % N != 0:
+        image = np.insert(image, w - 1, image[:, w - 1:], 1)
+        columns += 1
+        w += image.shape[1]
+
+    return rows, columns, image
 
 
 def lossy_transform(img, T, Q):
@@ -34,8 +37,8 @@ def lossy_transform(img, T, Q):
     original_shape = image.shape
     print(original_shape)
     if original_shape[0] % N != 0 or original_shape[1] % N != 0:
-        rows, columns = fit_image(image, N)
-        print(rows, columns)
+        rows, columns, image = fit_image(image, N)
+    print(image.shape)
     plt.imshow(image)
     plt.show()
 
