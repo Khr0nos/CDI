@@ -6,7 +6,6 @@ Javier Garcia Sanchez
 import argparse
 
 import matplotlib.pyplot as plt
-# import numpy as np
 import scipy as sp
 import scipy.linalg
 from scipy import misc
@@ -49,21 +48,31 @@ def trim_image(image, rows, columns):     # eliminar files/columnes sobrants
 
 
 def lossy_transform(img, T, Q):
-    image = misc.imread(img)
+    original = misc.imread(img, mode='L')
     N = T.shape[0]
-    #print(image.shape)
+    print(original.shape)
     # afegir files/columnes si cal
     rows = 0
     columns = 0
-    if image.shape[0] % N != 0 or image.shape[1] % N != 0:
-        rows, columns, image = fit_image(image, N)
-        #print(image.shape)
+    if original.shape[0] % N != 0 or original.shape[1] % N != 0:
+        rows, columns, fitted_img = fit_image(original, N)
+        print(fitted_img.shape)
+
+
 
     # eliminar files/columnes addicionals si s'han afegit previament
+    trimmed_image = original
     if rows > 0 and columns > 0:
-        image = trim_image(image, rows, columns)
-        #print(image.shape)
-    plt.imshow(image)
+        trimmed_image = trim_image(fitted_img, rows, columns)
+        print(trimmed_image.shape)
+    #plt.gray()
+    fig = plt.figure()
+    a = fig.add_subplot(1, 2, 1)
+    a.set_title('Original')
+    plt.imshow(original, cmap=plt.cm.get_cmap('gray'))
+    a = fig.add_subplot(1, 2, 2)
+    a.set_title('Processada')
+    plt.imshow(fitted_img, cmap=plt.cm.get_cmap('gray'))
     plt.show()
 
 
@@ -71,16 +80,21 @@ def main():
     parser = argparse.ArgumentParser(description="Transform image coding")
     parser.add_argument('image', help="path to image")
     parser.add_argument('-T', type=sp.ndarray, help="N x N Transform matrix", metavar="Matrix")
-    parser.add_argument('-q', type=int, help="N x N Quantization matrix", metavar="Matrix value")
+    parser.add_argument('-q', type=int, help="Matriu quantització uniforme N x N", metavar="enter > 0")
     parser.add_argument('-H', type=int, help="Mida de la matriu Hadamard de transformació", metavar="N")
+    parser.add_argument('-I', type=int, help="Mida de la matriu identitat de quantització", metavar="I")
     args = parser.parse_args()
+    if args.I is not None and args.H is not None:
+        T = scipy.linalg.hadamard(args.H, dtype=float)
+        Q = sp.identity(args.I, dtype=int)
+        lossy_transform(args.image, T, Q)
     if args.q is not None and args.H is not None:
         T = scipy.linalg.hadamard(args.H, dtype=float)
         N = T.shape[0]
-        Q = sp.ones((N, N), int) * args.q
+        Q = sp.ones((N, N), dtype=int) * args.q
         lossy_transform(args.image, T, Q)
-    if args.q is None:
-        print("El valor per a la matriu de quantitzacio no s'ha definit [-q enter]")
+    # if args.q is None:
+    #     print("El valor per a la matriu de quantitzacio no s'ha definit [-q enter]")
 
 
 if __name__ == '__main__':  # no tocar
