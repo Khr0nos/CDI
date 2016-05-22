@@ -31,7 +31,7 @@ def fit_image(image, N):  # ajustar imatge per a tenir un nombre de files/column
     return rows, columns, image
 
 
-def trim_image(image, rows, columns):     # eliminar files/columnes sobrants
+def trim_image(image, rows, columns):  # eliminar files/columnes sobrants
     h = image.shape[0]
     while rows > 0:
         image = sp.delete(image, h - 1, 0)
@@ -50,14 +50,22 @@ def trim_image(image, rows, columns):     # eliminar files/columnes sobrants
 def lossy_transform(img, T, Q):
     original = misc.imread(img, mode='L')
     N = T.shape[0]
-    print(original.shape)
+    #print(original.shape)
     # afegir files/columnes si cal
     rows = 0
     columns = 0
+    fitted_img = original
     if original.shape[0] % N != 0 or original.shape[1] % N != 0:
         rows, columns, fitted_img = fit_image(original, N)
         print(fitted_img.shape)
 
+    h = fitted_img.shape[0]
+    w = fitted_img.shape[1]
+    sub_size = N * N
+    m = int((h * w) / sub_size)
+    for i in range(0, m, sub_size):
+        if (i + N) < h:           #TODO indexar files modul nombre files i idem per a columnes
+            fitted_img[i:i + N, i:i + N] = T * fitted_img[i:i + N, i:i + N] * T.transpose()
 
 
     # eliminar files/columnes addicionals si s'han afegit previament
@@ -65,7 +73,7 @@ def lossy_transform(img, T, Q):
     if rows > 0 and columns > 0:
         trimmed_image = trim_image(fitted_img, rows, columns)
         print(trimmed_image.shape)
-    #plt.gray()
+    # plt.gray()
     fig = plt.figure()
     a = fig.add_subplot(1, 2, 1)
     a.set_title('Original')
@@ -99,3 +107,6 @@ def main():
 
 if __name__ == '__main__':  # no tocar
     main()
+
+
+    # Les imatges són en escala de grisos, 1 únic canal
