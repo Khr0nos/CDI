@@ -48,9 +48,10 @@ def trim_image(image, rows, columns):  # eliminar files/columnes sobrants
 
 
 def lossy_transform(img, T, Q):
-    original = misc.imread(img, mode='L')
+    original = img
+    color = len(tuple(original.shape)) == 3
     N = T.shape[0]
-    #print(original.shape)
+    print(original.shape)
     # afegir files/columnes si cal
     rows = 0
     columns = 0
@@ -61,11 +62,16 @@ def lossy_transform(img, T, Q):
 
     h = fitted_img.shape[0]
     w = fitted_img.shape[1]
-    sub_size = N * N
-    m = int((h * w) / sub_size)
-    for i in range(0, m, sub_size):
-        if (i + N) < h:           #TODO indexar files modul nombre files i idem per a columnes
-            fitted_img[i:i + N, i:i + N] = T * fitted_img[i:i + N, i:i + N] * T.transpose()
+    if color:
+        d = fitted_img.shape[2]
+        for i in range(0, h, N):
+            for j in range(0, w, N):
+                for k in range(d):
+                    fitted_img[i:i + N, j:j + N, k] = T * fitted_img[i:i + N, j:j + N, k] * T.transpose()
+    else:
+        for i in range(0, h, N):
+            for j in range(0, w, N):
+                fitted_img[i:i + N, j:j + N] = T * fitted_img[i:i + N, j:j + N] * T.transpose()
 
 
     # eliminar files/columnes addicionals si s'han afegit previament
@@ -73,14 +79,19 @@ def lossy_transform(img, T, Q):
     if rows > 0 and columns > 0:
         trimmed_image = trim_image(fitted_img, rows, columns)
         print(trimmed_image.shape)
-    # plt.gray()
     fig = plt.figure()
     a = fig.add_subplot(1, 2, 1)
     a.set_title('Original')
-    plt.imshow(original, cmap=plt.cm.get_cmap('gray'))
+    if color:
+        plt.imshow(original)
+    else:
+        plt.imshow(original, cmap=plt.cm.get_cmap('gray'))
     a = fig.add_subplot(1, 2, 2)
     a.set_title('Processada')
-    plt.imshow(fitted_img, cmap=plt.cm.get_cmap('gray'))
+    if color:
+        plt.imshow(fitted_img)
+    else:
+        plt.imshow(fitted_img, cmap=plt.cm.get_cmap('gray'))
     plt.show()
 
 
@@ -91,16 +102,21 @@ def main():
     parser.add_argument('-q', type=int, help="Matriu quantització uniforme N x N", metavar="enter > 0")
     parser.add_argument('-H', type=int, help="Mida de la matriu Hadamard de transformació", metavar="N")
     parser.add_argument('-I', type=int, help="Mida de la matriu identitat de quantització", metavar="I")
+    parser.add_argument('-g', action='store_true', help="flag per a carregar imatge en escala de grisos")
     args = parser.parse_args()
+    if args.g is True:
+        img = misc.imread(args.image, mode='L')
+    else:
+        img = misc.imread(args.image)
     if args.I is not None and args.H is not None:
         T = scipy.linalg.hadamard(args.H, dtype=float)
         Q = sp.identity(args.I, dtype=int)
-        lossy_transform(args.image, T, Q)
+        lossy_transform(img, T, Q)
     if args.q is not None and args.H is not None:
         T = scipy.linalg.hadamard(args.H, dtype=float)
         N = T.shape[0]
         Q = sp.ones((N, N), dtype=int) * args.q
-        lossy_transform(args.image, T, Q)
+        lossy_transform(img, T, Q)
     # if args.q is None:
     #     print("El valor per a la matriu de quantitzacio no s'ha definit [-q enter]")
 
