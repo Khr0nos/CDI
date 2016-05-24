@@ -71,6 +71,7 @@ def lossy_transform(img, T, Q):
             for j in range(0, w, N):
                 for k in range(d):
                     transformed[i:i + N, j:j + N, k] = T * fitted_img[i:i + N, j:j + N, k] * T.transpose()
+
     else:
         h = fitted_img.shape[0]
         w = fitted_img.shape[1]
@@ -92,7 +93,7 @@ def lossy_transform(img, T, Q):
         for i in range(0, h, N):
             for j in range(0, w, N):
                 for k in range(d):
-                    transformed[i:i + N, j:j + N, k] = transformed[i:i + N, j:j + N, k] * Q
+                    transformed[i:i + N, j:j + N, k] = np.round(transformed[i:i + N, j:j + N, k]) * Q
 
     else:
         h = transformed.shape[0]
@@ -103,7 +104,7 @@ def lossy_transform(img, T, Q):
 
         for i in range(0, h, N):
             for j in range(0, w, N):
-                transformed[i:i + N, j:j + N] = transformed[i:i + N, j:j + N] * Q
+                transformed[i:i + N, j:j + N] = np.round(transformed[i:i + N, j:j + N]) * Q
 
     # inverse transform
     if color:
@@ -113,14 +114,14 @@ def lossy_transform(img, T, Q):
         for i in range(0, h, N):
             for j in range(0, w, N):
                 for k in range(d):
-                    transformed[i:i + N, j:j + N, k] = sp.linalg.inv(T) * np.round(transformed[i:i + N, j:j + N, k]) * sp.linalg.inv(T.transpose())
+                    transformed[i:i + N, j:j + N, k] = sp.linalg.inv(T) * transformed[i:i + N, j:j + N, k] * sp.linalg.inv(T.transpose())
 
     else:
         h = transformed.shape[0]
         w = transformed.shape[1]
         for i in range(0, h, N):
             for j in range(0, w, N):
-                transformed[i:i + N, j:j + N] = sp.linalg.inv(T) * np.round(transformed[i:i + N, j:j + N]) * sp.linalg.inv(T.transpose())
+                transformed[i:i + N, j:j + N] = sp.linalg.inv(T) * transformed[i:i + N, j:j + N] * sp.linalg.inv(T.transpose())
 
     # eliminar files/columnes addicionals si s'han afegit previament
     newimg = transformed
@@ -132,13 +133,15 @@ def lossy_transform(img, T, Q):
 def main():
     parser = argparse.ArgumentParser(description="Transform image coding")
     parser.add_argument('image', help="path to image")
-    parser.add_argument('-T', type=sp.ndarray, help="N x N Transform matrix", metavar="Matrix")
+    parser.add_argument('-Q', type=int, help="N x N custom Transform matrix", metavar="Matrix")
     parser.add_argument('-q', type=int, help="Matriu quantització uniforme N x N", metavar="enter > 0")
     parser.add_argument('-H', type=int, help="Mida de la matriu Hadamard de transformació", metavar="N")
     parser.add_argument('-R', type=int, help="Mida de la matriu de quantització aleatoria", metavar="R")
     parser.add_argument('-I', type=int, help="Mida de la matriu identitat de transformació", metavar="I")
     parser.add_argument('-g', action='store_true', help="flag per a carregar imatge en escala de grisos")
     args = parser.parse_args()
+    T = None
+    Q = None
     if args.g is True:
         img = misc.imread(args.image, mode='L')
     else:
@@ -173,6 +176,8 @@ def main():
         else:
             plt.imshow(newimg, cmap=plt.cm.get_cmap('gray'))
         plt.show()
+    else:
+        print("Matriu de transformació i/o quantització no definides")
     # if args.q is None:
     #     print("El valor per a la matriu de quantitzacio no s'ha definit [-q enter]")
 
