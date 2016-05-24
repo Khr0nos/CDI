@@ -187,19 +187,23 @@ def main():
         newimg = lossy_transform(img, T, Q)
 
         fig = plt.figure()
-        a = fig.add_subplot(1, 2, 1)
+        a = fig.add_subplot(2, 2, 1)
         a.set_title('Original')
         if args.g:
             plt.gray()
             plt.imshow(img)
         else:
             plt.imshow(img)
-        a = fig.add_subplot(1, 2, 2)
+        a = fig.add_subplot(2, 2, 2)
         a.set_title('Processada')
         if args.g:
             plt.imshow(newimg)
         else:
             plt.imshow(newimg, cmap=plt.cm.get_cmap('gray'))
+        a = fig.add_subplot(2, 2, 3)
+        a.set_title('Error')
+        err = np.abs(np.subtract(img, newimg))
+        plt.imshow(err)
         plt.show()
     else:
         print("Matriu de transformació i/o quantització no definides")
