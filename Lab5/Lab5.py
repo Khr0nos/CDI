@@ -4,8 +4,6 @@ Javier Garcia Sanchez
 47179375-G
 """
 import argparse
-from math import cos
-from math import pi as PI
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -131,26 +129,13 @@ def lossy_transform(img, T, Q):
     return newimg
 
 
-def dct(N):
-    T = sp.zeros(shape=(N, N), dtype=float)
-    for i in range(N):
-        for j in range(N):
-            if i == 0:
-                T[i, j] = 1 / sp.sqrt(2) * sp.sqrt((2 / N)) * (cos((i - 1) * (j - (1 / 2)) * (PI / N)))
-            else:
-                T[i, j] = sp.sqrt((2 / N)) * (cos((i - 1) * (j - (1 / 2)) * (PI / N)))
-    print(T.I)
-    return T
-
-
 def main():
     parser = argparse.ArgumentParser(description="Transform image coding")
     parser.add_argument('image', help="path to image")
-    parser.add_argument('-C', type=int, help="Mida de la matriu DCT de transformació (cosinus)", metavar="N")
-    parser.add_argument('-q', type=int, help="Matriu quantització uniforme N x N", metavar="enter > 0")
     parser.add_argument('-H', type=int, help="Mida de la matriu Hadamard de transformació", metavar="N")
-    parser.add_argument('-R', action='store_true', help="Usar matriu de quantització aleatoria")
     parser.add_argument('-I', type=int, help="Mida de la matriu identitat de transformació", metavar="I")
+    parser.add_argument('-q', type=int, help="Matriu quantització uniforme N x N", metavar="enter > 0")
+    parser.add_argument('-R', action='store_true', help="Usar matriu de quantització aleatoria")
     parser.add_argument('-g', action='store_true', help="flag per a carregar imatge en escala de grisos")
     args = parser.parse_args()
     T = None
@@ -161,29 +146,26 @@ def main():
         img = misc.imread(args.image)
 
     if args.H is not None:
-        T = scipy.linalg.hadamard(args.H, dtype=float) * (1 / 2 * sp.sqrt(2))
-        N = T.shape[0]
-        if args.R is True:
-            Q = sp.random.randint(1, 255, (args.H, args.H))
-        if args.q > 0:
-            Q = sp.ones((N, N), dtype=int) * args.q
+        try:
+            T = scipy.linalg.hadamard(args.H, dtype=float) * (1 / 2 * sp.sqrt(2))
+            N = T.shape[0]
+            if args.R is True:
+                Q = sp.random.randint(1, 255, (N, N))
+            if args.q is not None:
+                Q = sp.ones((N, N), dtype=int) * args.q
+        except:
+            print("Error: la mida per a crear la matriu Hadamard ha de ser potència de 2")
+
 
     if args.I is not None:
         T = sp.identity(args.I, dtype=float)
         N = T.shape[0]
-        if args.q > 0:
+        if args.q is not None:
             Q = sp.ones((N, N), dtype=int) * args.q
         if args.R is True:
-            Q = sp.random.randint(1, 255, (args.H, args.H))
-    if args.C is not None:
-        T = dct(args.C)
-        N = args.C
-        if args.q > 0:
-            Q = sp.ones((N, N), dtype=int) * args.q
-        if args.R is True:
-            Q = sp.random.randint(1, 255, (args.H, args.H))
+            Q = sp.random.randint(1, 255, (N, N))
 
-    if T is not None or Q is not None:
+    if T is not None and Q is not None:
         newimg = lossy_transform(img, T, Q)
 
         fig = plt.figure()
@@ -219,3 +201,9 @@ if __name__ == '__main__':  # no tocar
 
     # Cas d'ús: python Lab5.py "imatge" -H 16 -q 10
     # compresssió usant Hadamard 16x16 amb quantització uniforme de 10
+
+    # He provat com a matrius de transformació Hadamard i identitat
+    # Com a matrius de quantització he fet proves amb matriu uniforme amb un únic valor
+    # i matriu amb valors aleatoris
+    # la tercera imatge "error" es la diferencia en valor absolut entre la imatge original i la
+    # obtinguda un cop processada
